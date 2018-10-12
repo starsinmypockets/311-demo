@@ -218,7 +218,7 @@ const graphqlQueryVars = () => {
 
   const variables = {
     components: componentsQ,
-    complaintType: complaintType, // @@TODO userify
+//    complaintType: complaintType, // @@TODO userify
     limit: limit,
     mapQueryKey: "neighborhoodMap"
   }

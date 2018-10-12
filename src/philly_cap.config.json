@@ -1,0 +1,187 @@
+{
+    "addlQs": [
+        "getCapsByDistrict",
+        "getTimeSeriesData"
+    ],
+    "regions": [
+        {
+            "id": "filters",
+            "className": "col-md-7",
+            "children": [
+                {
+                    "type": "Autocomplete",
+                    "filterKey": "complaint_type",
+                    "cardProps": {
+                        "header": {
+                            "template": "Complaints Against Police (BETA) -- \"%%var%%\"",
+                            "filterVal": "complaint_type",
+                            "default": "Complaints Against Police (BETA)",
+                            "joiner": ","
+                        },
+                        "footer": "Select a complaint type to show distribution by district in map below. (Note that density does not account for area of district, and is therefore approximate)",
+                        "cardClasses": ["select-complaint"]
+                    },
+                    "field": "complaint_type",
+                    "multi": false,
+                    "noData": true,
+                    "placeholder": "SELECT A COMPLAINT TYPE - LEAVE BLANK FOR ALL",
+                    "operation": "IN",
+		    "options": [
+		      {"label": "DEPARTMENTAL VIOLATIONS", "value" : "DEPARTMENTAL VIOLATIONS"},
+		      {"label": "LACK OF SERVICE", "value" : "LACK OF SERVICE"},
+		      {"label": "PHYSICAL ABUSE", "value" : "PHYSICAL ABUSE"},
+		      {"label": "VERBAL ABUSE", "value" : "VERBAL ABUSE"},
+		      {"label": "HARASSMENT", "value" : "HARASSMENT"},
+		      {"label": "UNPROFESSIONAL CONDUCT", "value" : "UNPROFESSIONAL CONDUCT"},
+		      {"label": "NON-INVESTIGATORY INCIDENT", "value" : "NON-INVESTIGATORY INCIDENT"},
+		      {"label": "CRIMINAL ALLEGATION", "value" : "CRIMINAL ALLEGATION"},
+		      {"label": "CIVIL RIGHTS COMPLAINT", "value" : "CIVIL RIGHTS COMPLAINT"},
+		      {"label": "DOMESTIC", "value" : "DOMESTIC"},
+		      {"label": "SEXUAL CRIME/MISCONDUCT", "value" : "SEXUAL CRIME/MISCONDUCT"}
+		    ]
+                },
+                {
+                    "type": "NeighborhoodFilter",
+                    "className": "map-left",
+                    "queryKey": "getCapsByDistrict",
+                    "filterKey": "neighborhood",
+                    "filters": ["complaint_type"],
+                    "componentKey": "districtMap",
+                    "leafletSettings": { 
+                          "center": [39.9728, -75.1638],
+                          "zoom": 12, 
+                          "minZoom": 6, 
+                          "scrollWheelZoom": false,
+                          "legends": true,
+                          "infoControl": false,
+                          "attributionControl": true,
+                          "selectedFillColor": "transparent",
+                          "selectedFillOpacity": 0,
+                          "unselectedFillColor": "transparent",
+                          "unselectedFillOpacity": 0,
+                          "tileUrl": "http://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png",
+                          "tileAttr": "© <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors © <a href=\"http://cartodb.com/attributions#basemaps\">CartoDB</a>"
+                    },
+                    "choroplethSettings": {
+                        "choroplethStyle": {
+                            "fillColor": "rgba(0,0,0,0)",
+                            "weight": 2,
+                            "opacity": 1,
+                            "color": "white",
+                            "dashArray": 3,
+                            "fillOpacity": 0.5
+                        },
+                        "choroplethColorScale": [
+                            "#eff3ff",
+                            "#bdd7e7",
+                            "#6baed6",
+                            "#3182bd",
+                            "#08519c"
+                        ],
+                        "steps": 5,
+                        "legendCaption": "Requests / district",
+                        "featureKey": "DISTRICT_",
+                        "dataKey": "dist_occurrence",
+                        "mode": "e"
+                    },
+                    "geojsonUrl": "/static/PhlPoliceDistricts.json",
+                    "featureIdentifier": "DISTRICT_",
+                    "multi": true
+                }
+            ]
+        },
+        {
+            "id": "sidebar",
+            "className": "col-md-5",
+            "children": [
+                {
+                    "type": "Metric",
+                    "componentKey": "metric-total",
+                    "background": "rgba(143, 169, 211, .5)",
+                    "icon": "product-hunt",
+                    "format": ",",
+                    "caption": "Total Complaints",
+                    "dataType": "Scalar",
+                    "value": 3645
+                },
+                {
+                    "type": "Chart",
+                    "componentKey": "chart-3",
+                    "dataType": "ChartJS",
+                    "resourceHandle": "complaints",
+                    "count": "general_cap_classification",
+                    "where": [],
+                    "dataFields": [
+                        {
+                            "resourceHandle": "complaints",
+                            "field": "general_cap_classification",
+                            "type": "STRING"
+                        }
+                    ],
+                    "cardProps": {
+                        "header": "All complaints against Police"
+                    },
+                    "settings": {
+                        "type": "pieChart"
+                    },
+                    "chartOptions": {
+                        "height": 250,
+                        "width": "content-box",
+                        "legend": {
+                            "position": "bottom",
+                            "labels": {
+                                "fontColor": "white",
+                                "fontSize": 14
+            }  
+                        }
+                    },
+                    "series": [
+                        {
+                            "label": "FPP kabek",
+                            "x": "general_cap_classification",
+                            "y": "count",
+                            "backgroundColor": ["rgba(157,87,87,1)", "rgba(166,101,123,1)", "rgba(157,123,157,1)", "rgba(132,147,182,1)" ,"rgb(99,171,190)","rgb(86,192,179)", "rgb(114,208,155)", "rgb(166,219,127)", "rgb(228,223,109)", "rgb(190,152,197)", "rgb(117,171,204)", "rgb(106,181,117)", "rgb(166,170,75)","rgb(219,150,77)"]
+                        }
+                    ]
+                },
+                {
+                    "type": "Markup",
+                    "className": "lead",
+                    "content": "Philadelphia periodically releases a list of complaints against police officers. The map to the left shows the number of requests per police district. Darker colors represent districts with more complaints. (Note that figures are not adjusted for district area). Use the filters to select a subset of the data. Click on the map for details about each police district.",
+                    "cardProps": {
+                        "header": "About this dashboard",
+                        "cardClasses": ["lead"]
+                    }
+                }
+            ]
+        },
+        {
+            "id": "time-series",
+            "className": "col-md-12",
+            "children": [
+                {
+                    "type": "TimeSeriesChart",
+                    "componentKey": "time-series-1",
+                    "queryKey": "getTimeSeriesData",
+                    "cardProps": {
+                        "header": "Complaints over time",
+                        "subheader": "Following is a summary of all complaints against the Philadelphia police by time from January, 2013 through December 2017. Click the labels in the legend to select which complaint types to show.",
+                        "footer": "Click on labels to toggle series in chart"
+
+                    }
+                },
+                {
+                    "type": "Markup",
+                    "className": "lead",
+                    "content": "Data is from the city website: http://philly.data.gov",
+                    "cardProps": {
+                        "cardClasses": ["lead"],
+                        "header": "About the data",
+                        "footerHeader": "A note about missing data",
+                        "footer": "Some of the recorded requests are not associated with a valid Police District. These requests are included in the data used in the time-series chart (Complaints over time) and the pie chart (All complaints against police) but are NOT included in the Choropleth map (top-left) statistics."
+                    }
+                }
+            ]
+        }
+   ]
+}

@@ -1,7 +1,16 @@
 {
+    "backend": "cartodb",
     "addlQs": [
-        "getCapsByDistrict",
-        "getTimeSeriesData"
+        "getServiceNumbersByNeighborhood",
+        "getOutstandingRequests"
+    ],
+    "dataResources": [
+        {
+            "resourceHandle": "philly_311",
+            "resourceType": "cartodb",
+            "url": "https://phl.carto.com/api/v2/sql",
+            "query": "?q=SELECT service_name, COUNT(cartodb_id) FROM public_cases_fc WHERE service_name NOT IN ('Information Request') GROUP BY service_name ORDER BY count DESC LIMIT 10"
+        }
     ],
     "regions": [
         {
@@ -10,43 +19,49 @@
             "children": [
                 {
                     "type": "Autocomplete",
-                    "filterKey": "complaint_type",
+                    "filterKey": "service_name",
                     "cardProps": {
                         "header": {
-                            "template": "Complaints Against Police (BETA) -- \"%%var%%\"",
-                            "filterVal": "complaint_type",
-                            "default": "Complaints Against Police (BETA)",
+                            "template": "Pending Requests -- \"%%var%%\" -- 2017 Data",
+                            "filterVal": "service_name",
+                            "default": "311 Requests in Philadelphia -- 2017 Data",
                             "joiner": ","
                         },
-                        "footer": "Select a complaint type to show distribution by district in map below. (Note that density does not account for area of district, and is therefore approximate)",
-                        "cardClasses": ["select-complaint"]
+                        "cardClasses": ["select-service"]
                     },
-                    "field": "complaint_type",
+                    "field": "service_name",
                     "multi": false,
                     "noData": true,
-                    "placeholder": "SELECT A COMPLAINT TYPE - LEAVE BLANK FOR ALL",
+                    "placeholder": "SELECT A REQUEST TYPE",
                     "operation": "IN",
-		    "options": [
-		      {"label": "DEPARTMENTAL VIOLATIONS", "value" : "DEPARTMENTAL VIOLATIONS"},
-		      {"label": "LACK OF SERVICE", "value" : "LACK OF SERVICE"},
-		      {"label": "PHYSICAL ABUSE", "value" : "PHYSICAL ABUSE"},
-		      {"label": "VERBAL ABUSE", "value" : "VERBAL ABUSE"},
-		      {"label": "HARASSMENT", "value" : "HARASSMENT"},
-		      {"label": "UNPROFESSIONAL CONDUCT", "value" : "UNPROFESSIONAL CONDUCT"},
-		      {"label": "NON-INVESTIGATORY INCIDENT", "value" : "NON-INVESTIGATORY INCIDENT"},
-		      {"label": "CRIMINAL ALLEGATION", "value" : "CRIMINAL ALLEGATION"},
-		      {"label": "CIVIL RIGHTS COMPLAINT", "value" : "CIVIL RIGHTS COMPLAINT"},
-		      {"label": "DOMESTIC", "value" : "DOMESTIC"},
-		      {"label": "SEXUAL CRIME/MISCONDUCT", "value" : "SEXUAL CRIME/MISCONDUCT"}
-		    ]
+                    "options": 
+			[
+			    {"label": "Miscellaneous", "value": "Miscellaneous"},
+			    {"label": "Maintenance Residential or Commercial", "value": "Maintenance Residential or Commercial"},
+			    {"label": "Rubbish/Recyclable Material Collection", "value":"Rubbish/Recyclable Material Collection"}, 
+			    {"label": "Illegal Dumping", "value": "Illegal Dumping"},                
+			    {"label": "Abandoned Vehicle", "value":"Abandoned Vehicle"},                      
+			    {"label": "Graffiti Removal", "value": "Graffiti Removal"},                       
+			    {"label": "Street Defect", "value": "Street Defect"},     
+			    {"label": "Street Light Outage", "value": "Street Light Outage"},                 
+			    {"label": "Vacant Lot Clean-Up", "value": "Vacant Lot Clean-Up"},
+			    {"label": "Vacant House or Commercial", "value": "Vacant House or Commercial"},
+			    {"label": "Salting", "value": "Salting"},                           
+			    {"label": "Sanitation / Dumpster Violation", "value": "Sanitation / Dumpster Violation"},
+			    {"label": "Traffic Signal Emergency", "value": "Traffic Signal Emergency"},
+			    {"label": "Street Trees", "value": "Street Trees"},     
+			    {"label": "Building Dangerous", "value": "Building Dangerous"},                 
+			    {"label": "Smoke Detector", "value": "Smoke Detector"},   
+			    {"label": "Building Construction", "value": "Building Construction"}, 
+			    {"label": "Construction Site Task Force", "value": "Construction Site Task Force"}
+                        ]
                 },
                 {
                     "type": "NeighborhoodFilter",
                     "className": "map-left",
-                    "queryKey": "getCapsByDistrict",
                     "filterKey": "neighborhood",
-                    "filters": ["complaint_type"],
-                    "componentKey": "districtMap",
+                    "filters": ["service_name"],
+                    "componentKey": "neighborhoodMap",
                     "leafletSettings": { 
                           "center": [39.9728, -75.1638],
                           "zoom": 12, 
@@ -71,115 +86,216 @@
                             "dashArray": 3,
                             "fillOpacity": 0.5
                         },
-                        "choroplethColorScale": [
-                            "#eff3ff",
-                            "#bdd7e7",
-                            "#6baed6",
-                            "#3182bd",
-                            "#08519c"
-                        ],
+                        "choroplethColorScale": ["#f1eef6", "#d7b5d8", "#df65b0", "#dd1c77", "#980043"],
                         "steps": 5,
-                        "legendCaption": "Requests / district",
-                        "featureKey": "DISTRICT_",
-                        "dataKey": "dist_occurrence",
+                        "legendCaption": "Requests / sq mi",
                         "mode": "e"
                     },
-                    "geojsonUrl": "/static/PhlPoliceDistricts.json",
-                    "featureIdentifier": "DISTRICT_",
+                    "geojsonUrl": "/static/Neighborhoods_Philadelphia.json",
                     "multi": true
                 }
             ]
         },
         {
-            "id": "sidebar",
+            "id": "region-00",
             "className": "col-md-5",
+            "needsParam": "service_name",
             "children": [
                 {
                     "type": "Metric",
                     "componentKey": "metric-total",
-                    "background": "rgba(143, 169, 211, .5)",
-                    "icon": "product-hunt",
+                    "resourceHandle": "philly_311",
+                    "filters": ["service_name"],
+                    "background": "rgba(192,66,90,.8)",
+                    "icon": "phone",
                     "format": ",",
-                    "caption": "Total Complaints",
+                    "caption": "Total Reported in 2017",
                     "dataType": "Scalar",
-                    "value": 3645
+                    "where": [],
+                    "count": "service_name"
                 },
                 {
                     "type": "Chart",
-                    "componentKey": "chart-3",
+                    "componentKey": "discrete-1",
+                    "cardProps": {
+                        "header": {
+                            "template": "Most \"%%var%%\" Requests by Neighborhood",
+                            "default": "No request type selected",
+                            "filterVal": "service_name",
+                            "joiner": ","
+                        },
+                        "cardClasses": ["discrete-1", "discrete"]
+                    },
                     "dataType": "ChartJS",
-                    "resourceHandle": "complaints",
-                    "count": "general_cap_classification",
-                    "where": [],
-                    "dataFields": [
+                    "resourceHandle": "philly_311",
+                    "limit": 10,
+                    "group": "neighborhood_name",
+                    "count": "neighborhood_name",
+                    "order": {
+                        "attribute": "count",
+                        "order": "DESC"
+                    },
+                    "where": [
                         {
-                            "resourceHandle": "complaints",
-                            "field": "general_cap_classification",
-                            "type": "STRING"
+                            "attribute": "service_name",
+                            "value": {"filterVal": "service_name"}
                         }
                     ],
-                    "cardProps": {
-                        "header": "All complaints against Police"
-                    },
-                    "settings": {
-                        "type": "pieChart"
-                    },
+                    "dataFields": [
+                        {
+                            "resourceHandle": "philly_311",
+                            "field": "neighborhood_name",
+                            "type": "STRING",
+                            "fieldHandle": "neighborhood_name"
+                        }
+                    ],
                     "chartOptions": {
-                        "height": 250,
-                        "width": "content-box",
-                        "legend": {
-                            "position": "bottom",
-                            "labels": {
-                                "fontColor": "white",
-                                "fontSize": 14
-            }  
+                        "scales": {
+                            "xAxes": [
+                                {
+                                    "stacked": false,
+                                    "beginAtZero": true,
+                                    "ticks": {
+                                        "stepSize": 1,
+                                        "fontColor": "yellow",
+                                        "min": 0,
+                                        "autoSkip": false
+                                    }
+                                }
+                            ],
+                            "yAxes": [
+                              {
+                                "beginAtZero": true,
+                                "ticks": {
+                                  "fontColor": "white",
+                                  "min": 0
+                                }
+                              }
+                            ]
                         }
                     },
                     "series": [
                         {
-                            "label": "FPP kabek",
-                            "x": "general_cap_classification",
+                            "label": "Number of requests",
+                            "x": "neighborhood_name",
                             "y": "count",
-                            "backgroundColor": ["rgba(157,87,87,1)", "rgba(166,101,123,1)", "rgba(157,123,157,1)", "rgba(132,147,182,1)" ,"rgb(99,171,190)","rgb(86,192,179)", "rgb(114,208,155)", "rgb(166,219,127)", "rgb(228,223,109)", "rgb(190,152,197)", "rgb(117,171,204)", "rgb(106,181,117)", "rgb(166,170,75)","rgb(219,150,77)"]
+                            "bg": "rgba(255,99,132,0.6)",
+                            "border": "rgba(255,99,132,1)",
+                            "bgHover": "rgba(255,99,132,0.8)",
+                            "borderHover": "rgba(255,99,132,1)"
                         }
                     ]
-                },
-                {
-                    "type": "Markup",
-                    "className": "lead",
-                    "content": "Philadelphia periodically releases a list of complaints against police officers. The map to the left shows the number of requests per police district. Darker colors represent districts with more complaints. (Note that figures are not adjusted for district area). Use the filters to select a subset of the data. Click on the map for details about each police district.",
-                    "cardProps": {
-                        "header": "About this dashboard",
-                        "cardClasses": ["lead"]
-                    }
                 }
             ]
         },
         {
-            "id": "time-series",
-            "className": "col-md-12",
+            "id": "region-00-no-service-name",
+            "className": "col-md-4",
+            "title": "Choose a Request Type",
+            "needsNoParam": "service_name",
             "children": [
                 {
-                    "type": "TimeSeriesChart",
-                    "componentKey": "time-series-1",
-                    "queryKey": "getTimeSeriesData",
+                    "type": "Metric",
+                    "componentKey": "m-a-3",
+                    "format": ",",
+                    "componentKey": "metric-total",
                     "cardProps": {
-                        "header": "Complaints over time",
-                        "subheader": "Following is a summary of all complaints against the Philadelphia police by time from January, 2013 through December 2017. Click the labels in the legend to select which complaint types to show.",
-                        "footer": "Click on labels to toggle series in chart"
-
-                    }
+                        "cardClasses": ["doHover"],
+                        "link": true,
+                        "href": "/?service_name=Street%20Defect"
+                    },
+                    "resourceHandle": "philly_311",
+                    "background": "rgba(77, 132, 209, .8)",
+                    "icon": "road",
+                    "caption": "Street Defect Requests",
+                    "dataType": "Scalar",
+                    "where": [{
+                        "attribute": "service_name",
+                        "value": "Street Defect"
+                    }],
+                    "count": "service_name"
                 },
                 {
-                    "type": "Markup",
-                    "className": "lead",
-                    "content": "Data is from the city website: http://philly.data.gov",
+                    "type": "Metric",
+                    "componentKey": "m-a-4",
+                    "format": ",",
                     "cardProps": {
-                        "cardClasses": ["lead"],
-                        "header": "About the data",
-                        "footerHeader": "A note about missing data",
-                        "footer": "Some of the recorded requests are not associated with a valid Police District. These requests are included in the data used in the time-series chart (Complaints over time) and the pie chart (All complaints against police) but are NOT included in the Choropleth map (top-left) statistics."
-                    }
+                        "cardClasses": ["doHover"],
+                        "link": true,
+                        "href": "/?service_name=Illegal%20Dumping"
+                    },
+                    "resourceHandle": "philly_311",
+                    "filters": ["service_name"],
+                    "background": "rgba(137, 42, 121, .8)",
+                    "icon": "trash",
+                    "caption": "Illegal Dumping Requests",
+                    "dataType": "Scalar",
+                    "where": [{
+                        "attribute": "service_name",
+                        "value": "Illegal Dumping"
+                    }],
+                    "count": "service_name"
+                },
+                {
+                    "type": "Metric",
+                    "componentKey": "m-a-5",
+                    "format": ",",
+                    "cardProps": {
+                        "cardClasses": ["doHover"],
+                        "link": true,
+                        "href": "/?service_name=Maintenance%20Residential%20or%20Commercial"
+                    },
+                    "resourceHandle": "philly_311",
+                    "background": "rgba(192,66,90,.8)",
+                    "icon": "wrench",
+                    "caption": "Maintenance Requests",
+                    "dataType": "Scalar",
+                    "where": [{
+                        "attribute": "service_name",
+                        "value": "Maintenance Residential or Commercial"
+                    }],
+                    "count": "service_name"
+                },
+                {
+                    "type": "Metric",
+                    "componentKey": "m-a-6",
+                    "format": ",",
+                    "cardProps": {
+                        "cardClasses": ["doHover"],
+                        "link": true,
+                        "href": "/?service_name=Graffiti%20Removal"
+                    },
+                    "resourceHandle": "philly_311",
+                    "filters": ["service_name"],
+                    "background": "rgba(244, 200, 66, .8)",
+                    "icon": "eyedropper",
+                    "caption": "Graffiti Removal Requests",
+                    "dataType": "Scalar",
+                    "where": [{
+                        "attribute": "service_name",
+                        "value": "Graffiti Removal"
+                    }],
+                    "count": "service_name"
+                },
+                {
+                    "type": "Metric",
+                    "componentKey": "m-a-2",
+                    "format": ",",
+                    "cardProps": {
+                        "cardClasses": ["doHover"],
+                        "link": true,
+                        "href": "/?service_name=Information%20Request"
+                    },
+                    "resourceHandle": "philly_311",
+                    "background": "rgba(244, 200, 66, .8)",
+                    "icon": "institution",
+                    "caption": "Total Requests For Information",
+                    "dataType": "Scalar",
+                    "where": [{
+                         "attribute": "service_name",
+                         "value": "Information Request"
+                    }],
+                    "count": "service_name"
                 }
             ]
         }

@@ -159,7 +159,7 @@ export default class NeighborhoodFilter extends BaseFilter {
         {key: "Neighborhood", val: selected[0].neighborhood.replace(/_/g,' ')},
         {key: "Total Requests", val: selected[0].count},
         {key: "Area (sq. mi.)", val: parseFloat(selected[0].sqmi).toFixed(2)},
-        {key: "Request Rate (per sq. mi.)", val: parseFloat(selected[0].rate).toFixed(2)}
+        {key: "Request Rate (per sq. mi.)", val: (selected[0].count / selected[0].sqmi).toFixed(2)}
       ]
     }
 

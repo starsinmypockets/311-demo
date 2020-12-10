@@ -12,7 +12,8 @@ import {ApolloClient} from 'apollo-client'
 
 // should prob use ENV
 //const API_URI = "http://45.79.171.179:3333/graphql/"
-const API_URL= (process.env.NODE_ENV === 'production') ? process.env.REACT_APP_API_URL_PROD : process.env.REACT_APP_API_URL_DEV
+//const API_URL= (process.env.NODE_ENV === 'production') ? process.env.REACT_APP_API_URL_PROD : process.env.REACT_APP_API_URL_DEV
+const API_URL = 'http://172.104.22.11:3333/graphql/'
 const client = new ApolloClient({
   link: new HttpLink({uri: API_URL}),
   cache: new InMemoryCache()

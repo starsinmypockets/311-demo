@@ -141,7 +141,7 @@ export default class NeighborhoodFilter extends BaseFilter {
   getNeighborhoodVal(feature) {
     const data = this.props.addlData.getServiceNumbersByNeighborhood || []
     const count = data.filter(n => n.neighborhood === feature.properties.name)
-    return (count.length > 0) ? parseFloat(count[0].rate) : undefined
+    return (count.length > 0) ? parseFloat(count[0].count / count[0].sqmi) : undefined
   }
 
   // get data fields for active data subunit
@@ -170,7 +170,7 @@ export default class NeighborhoodFilter extends BaseFilter {
   getLegendData() {
     const data = this.props.addlData.getServiceNumbersByNeighborhood || []
     // @@TODO this shuold be a configured variable (eg rate / count) see getNeighborhoodData above:
-    return data.map(rec => parseFloat(rec.rate))
+    return data.map(rec => parseFloat(rec.count / rec.sqmi))
   }
   
   /**
